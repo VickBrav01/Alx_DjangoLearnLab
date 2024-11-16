@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.views.generic import ListView
 from django.urls import reverse_lazy
 from .models import Library, Librarian, Book, Author
@@ -9,14 +10,13 @@ from .models import Library, Librarian, Book, Author
 
 def list_books(request):
     books = Book.objects.all()
-    response = "<h1>List of Books</h1><ul>"
-    context = "listbooks"
+    response = (
+        "This view should render a simple text list of book titles and their authors."
+    )
     for book in books:
         response += f"<li>{book.title} by {book.author.name}</li>"
     response += "</ul>"
-    return HttpResponse(
-        "This view should render a simple text list of book titles and their authors."
-    )
+    return render(response, "list_books.html", {"name": "name"})
 
 
 class SpecificLibraryView(ListView):
