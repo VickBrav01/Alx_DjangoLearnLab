@@ -1,5 +1,5 @@
 # from django.shortcuts import render
-from .serializer import BookSerializer
+from .serializers import BookSerializer
 from .models import Book
 from rest_framework.generics import ListAPIView
 
