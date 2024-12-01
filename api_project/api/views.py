@@ -2,7 +2,7 @@
 from .serializers import BookSerializer
 from .models import Book
 # from rest_framework.generics import ListAPIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets.ModelViewSet
 
 # Create your views here.
 
