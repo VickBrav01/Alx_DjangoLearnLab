@@ -31,3 +31,20 @@ class PostView(LoginRequiredMixin, ListView):
     context_object_name = "posts"
     authentication_class = [IsAuthenticated]
     template_name = "blog/posts.html"
+class CreatePostView(LoginRequiredMixin, CreateView):
+    queryset = Post.objects.all()
+    context_object_name = "posts"
+    authentication_class = [IsAuthenticated]
+    template_name = "blog/posts.html"
+    
+    def create():
+        ...
+class UpdatePostView(LoginRequiredMixin, UpdateView):
+    queryset = Post.objects.all()
+    context_object_name = "posts"
+    template_name = "blog/posts.html"
+class DeletePostView(LoginRequiredMixin, DeleteView):
+    queryset = Post.objects.all()
+    context_object_name = "posts"
+    authentication_class = [IsAuthenticated]
+    template_name = "blog/posts.html"
