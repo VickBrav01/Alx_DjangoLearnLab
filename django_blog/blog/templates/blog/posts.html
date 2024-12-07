@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+    <title>
+        {% block title %}Blogs{% endblock title %}
+    </title>
+</head>
+<body>
+    <h1>{% block greetings %}Welcome!{% endblock greetings %}</h1>
+    <h2>{% block contentHead %}Posts{% endblock contentHead %}</h2>
+    {% block content %}
+    <div>
+        {% for post in posts%}
+            <article>
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.content }}</p>
+            </article>
+        {% empty %}
+            <p>No posts available.</p>
+        {% endfor %}
+    </div>
+    {% comment %} <a href="{% url 'addpost' %}">
+        <button>Add Book</button>
+    </a> {% endcomment %}
+    
+    <form action="{% url 'logout' %}" method="POST">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    
+    {% endblock content %}
+
+    
+</body>
+</html>
+
+
+
+
