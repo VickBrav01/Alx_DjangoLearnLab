@@ -23,8 +23,11 @@ class RegisterView(CreateView):
     success_url = reverse_lazy("home")
 
 
+class ProfileView: ...
+
+
 class PostView(LoginRequiredMixin, ListView):
     queryset = Post.objects.all()
-    context_object_name = 'posts'
+    context_object_name = "posts"
     authentication_class = [IsAuthenticated]
     template_name = "blog/posts.html"
