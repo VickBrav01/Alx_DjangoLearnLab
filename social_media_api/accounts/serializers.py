@@ -1,5 +1,10 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, ValidationError
 from .models import User
+
+from rest_framework.authtoken.models import Token
+
+User = get_user_model()
 
 
 class RegisterSerializer(ModelSerializer):
@@ -39,3 +44,14 @@ class ProfileSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
+        
+class LoginSerializer(ModelSerializer):
+    username = serializers.CharField()
+    email = serializers.CharField()
+    
+class RegisterSerializer(ModelSerializer):
+    serializer_class = RegisterSerializer
+      
+      def create_user(self):
+          
+          Token.objects.create()
