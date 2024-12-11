@@ -52,6 +52,12 @@ class LoginSerializer(ModelSerializer):
 class RegisterSerializer(ModelSerializer):
     serializer_class = RegisterSerializer
       
-      def create_user(self):
-          
+      def create_user(self, validated_data):
+          User = get_user_model().create_user(
+              username = validated_data['username'],
+              email = validated_data['email'],
+              password = validated_data['password'],
+              
+          )
+          return User
           Token.objects.create()
