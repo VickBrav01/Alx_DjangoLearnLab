@@ -18,7 +18,7 @@ class RegisterSerializer(ModelSerializer):
         return value
 
     def create(self, validated_data):
-        
+
         profile_picture = validated_data.pop("profile_picture", None)
         bio = validated_data.pop("bio", None)
 
@@ -29,7 +29,6 @@ class RegisterSerializer(ModelSerializer):
             profile_picture=profile_picture,
             bio=bio,
         )
-        
 
         return user
 
@@ -44,20 +43,21 @@ class ProfileSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
-        
+
+
 class LoginSerializer(ModelSerializer):
     username = serializers.CharField()
     email = serializers.CharField()
-    
+
+
 class RegisterSerializer(ModelSerializer):
     serializer_class = RegisterSerializer
-      
-      def create_user(self, validated_data):
-          User = get_user_model().create_user(
-              username = validated_data['username'],
-              email = validated_data['email'],
-              password = validated_data['password'],
-              
-          )
-          return User
-          Token.objects.create()
+    Token.objects.create()
+
+    def create_user(self, validated_data):
+        User = get_user_model().objects.create_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+        )
+        return User
