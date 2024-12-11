@@ -8,8 +8,27 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 
+from rest_framework.authtoken.models import Token
 
 User = get_user_model()
+
+
+class LoginView(TokenObtainPairView):
+    username = serializers.CharField()
+    email = serializers.CharField()
+    
+class RegisterView(CreateAPIView):
+    serializer_class = RegisterSerializer
+      
+      def create_user(self):
+          
+
+
+
+
+
+
+
 
 
 class RegisterView(CreateAPIView):
