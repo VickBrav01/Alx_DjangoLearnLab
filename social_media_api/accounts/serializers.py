@@ -4,18 +4,19 @@ from .models import User
 
 from rest_framework.authtoken.models import Token
 
-User = get_user_model()
-
 
 class RegisterSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
-
-    def validate_followers(self, value):
-        if value:
-            raise ValidationError("Must not have any followers")
-        return value
+        fields = [
+            "username",
+            "password",
+            "email",
+            "bio",
+            "profile_picture",
+            "followers",
+            "following",
+        ]
 
     def create(self, validated_data):
 
@@ -42,22 +43,30 @@ class RegisterSerializer(ModelSerializer):
 class ProfileSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        fields = [
+            "id",
+            "username",
+            "email",
+            "bio",
+            "profile_picture",
+            "followers",
+            "following",
+        ]
 
 
-class LoginSerializer(ModelSerializer):
-    username = serializers.CharField()
-    email = serializers.CharField()
+# class LoginSerializer(ModelSerializer):
+#     username = serializers.CharField()
+#     email = serializers.CharField()
 
 
-class RegisterSerializer(ModelSerializer):
-    serializer_class = RegisterSerializer
-    Token.objects.create()
+# class RegisterSerializer(ModelSerializer):
+#     serializer_class = RegisterSerializer
+#     Token.objects.create()
 
-    def create_user(self, validated_data):
-        User = get_user_model().objects.create_user(
-            username=validated_data["username"],
-            email=validated_data["email"],
-            password=validated_data["password"],
-        )
-        return User
+#     def create_user(self, validated_data):
+#         User = get_user_model().objects.create_user(
+#             username=validated_data["username"],
+#             email=validated_data["email"],
+#             password=validated_data["password"],
+#         )
+#         return User

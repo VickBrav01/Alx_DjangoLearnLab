@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_filters",
     "accounts",
+    "posts",
 ]
 
 REST_FRAMEWORK = {
@@ -55,7 +56,7 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=72),
 }
 
 MIDDLEWARE = [
