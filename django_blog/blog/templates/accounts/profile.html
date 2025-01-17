@@ -1,0 +1,13 @@
+{% extends "blog/base.html" %}
+{% block title %}Profile Page{% endblock %}
+{% block content %}
+<h1>Welcome {{ user.username }}</h1>
+
+<section>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Logout</button>
+    </form>
+</section>
+{% endblock %}

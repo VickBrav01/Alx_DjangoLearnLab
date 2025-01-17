@@ -1,93 +1,69 @@
-from rest_framework.generics import (
-    ListAPIView,
-    CreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
-from django.shortcuts import get_object_or_404
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
-from .serializers import PostSerializer, CommentSerializer
-from rest_framework.filters import OrderingFilter, SearchFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from .models import Comment, Post
-from django.db.models import Q
-from rest_framework.response import Response
+from django.shortcuts import render
 from rest_framework import status
+from rest_framework import viewsets, generics, permissions
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .permissions import IsAuthorOrReadOnly
+from .serializers import PostSerializer, CommentSerializer
+from .models import Post, Comment, Like
+from notifications.models import Notification
 
 # Create your views here.
 
-
-class PostViewset(ModelViewSet):
+class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
-    permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
-    # filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
-    # ordering_fields = ["-created_at", "title"]
-    # search_fields = ["title"]
-    # filterset_fields = {
-    #     "title": ["iexact"],
-    #     "author__username": ["icontains"],
-    # }
 
-    def perform_create(self, serializer):
-        user = self.request.user
-        serializer.save(author=user)
-
-    def get_queryset(self):
-        user = self.request.user
-        post = Post.objects.filter(
-            Q(author=user) | Q(author__followers_set=user)
-        ).distinct()
-
-        return post
-
-
-class CommentViewset(ModelViewSet):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-
-    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["post"]
-    ordering_fields = ["created_at"]
-    search_fields = ["content"]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
 
-# class CreateCommentView(CreateAPIView):
-#     queryset = Comment.objects.all()
-#     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
-#     def perform_create(self, serializer):
-#         author = self.request.user
-#         serializer.save(author=author)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
+class UserFeedView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-# class DetailCommentView(RetrieveUpdateDestroyAPIView):
-#     queryset = Comment.objects.all()
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = CommentSerializer
+    def get_queryset(self):
+        user = self.request.user
+        following_users = user.following.all()
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
+    
 
+class LikedPostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-# class CreatePostView(CreateAPIView):
-#     queryset = Post.objects.all()
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = PostSerializer
+    def post(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        user = request.user
 
-#     def perform_create(self, serializer):
-#         author = self.request.user
-#         serializer.save(author=author)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        if Like.objects.filter(post=post, user = user).exists():
+            return Response({'message': 'Already liked'}, status=status.HTTP_400_BAD_REQUEST)
+        
 
+        Notification.objects.create(recipient=post.author, actor=user, verb='liked you post', target=post)
+        return Response({'message': 'Post liked'}, status=status.HTTP_201_CREATED)
+    
 
-# class DetailPostView(RetrieveUpdateDestroyAPIView):
-#     queryset = Post.objects.all()
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = PostSerializer
-#     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
-#     ordering_fields = ["-created_at", "title"]
-#     search_fields = ["title"]
-#     filterset_fields = {
-#         "title": ["iexact"],
-#         "author__username": ["icontains"],
-#     }
+class UnlikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        user = request.user
+
+        like = Like.objects.filter(post=post, user=user)
+        if not like:
+            return Response({'message': 'Not like yet'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        like.delete()
+        return Response({'message': 'Post unliked'}, status=status.HTTP_200_OK)

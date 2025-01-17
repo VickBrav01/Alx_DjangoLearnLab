@@ -1,0 +1,20 @@
+{% extends "blog/base.html" %}
+{% block title %}Create a Comment{% endblock %}
+{% block content %}
+<section>
+    {% comment %} <h2>{{  }}</h2> {% endcomment %}
+    {% comment %} <h2>{{ view.object.title if view.object.title else 'Add Comment' }}</h2> {% endcomment %}
+    <h2>{% if object %}Edit{% else %}Create{% endif %} Comment</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Comment</button>
+    </form>
+</section>
+{% endblock %}
+
+
+
+
+
+

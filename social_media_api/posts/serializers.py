@@ -1,16 +1,17 @@
-from rest_framework.serializers import ModelSerializer, ValidationError
-from .models import Comment, Post
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from rest_framework.authtoken.models import Token
+from .models import Post, Comment
+
+User = get_user_model()
 
 
-class CommentSerializer(ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ["post", "author", "content", "created_at", "updated_at"]
-
-
-class PostSerializer(ModelSerializer):
-    comment = CommentSerializer(many=True, read_only=True)
-
+class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ["title", "author", "content", "comment", "created_at", "updated_at"]
+        fields = '__all__'
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'

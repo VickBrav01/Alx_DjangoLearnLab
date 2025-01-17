@@ -1,0 +1,11 @@
+{% extends "blog/base.html" %}
+{% block title %}Posts List{% endblock %}
+{% block content %}
+<section class="content">
+{% for post in posts %}
+<p>By {{ post.author.username }}</p>
+<h1>{{ post.title }}</h1>
+<p>{{ post.content }}</p>
+{% endfor %}
+</section>
+{% endblock %}

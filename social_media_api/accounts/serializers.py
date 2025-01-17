@@ -1,72 +1,40 @@
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer, ValidationError
-from .models import User
-
+from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 
+User = get_user_model()
 
-class RegisterSerializer(ModelSerializer):
+
+class UserSerializer(serializers.ModelSerializer):
+    followers_count = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = [
-            "username",
-            "password",
-            "email",
-            "bio",
-            "profile_picture",
-            "followers",
-            "following",
-        ]
+        fields = '__all__'
+
+    def get_followers_count(self, obj):
+        return obj.followers.count()
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    # token = serializers.CharField()
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
 
     def create(self, validated_data):
-
-        profile_picture = validated_data.pop("profile_picture", None)
-        bio = validated_data.pop("bio", None)
-
-        user = User.objects.create_user(
-            username=validated_data["username"],
-            password=validated_data["password"],
-            email=validated_data["email"],
-            profile_picture=profile_picture,
-            bio=bio,
-        )
-
+        user = get_user_model().objects.create_user(**validated_data)
+        # token, created = Token.objects.create(user=user)
         return user
 
-    def validate_username(self, value):
-        if len(value) < 5:
-            raise ValidationError("User must be five plus characters")
 
-        return value
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
 
-
-class ProfileSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = [
-            "id",
-            "username",
-            "email",
-            "bio",
-            "profile_picture",
-            "followers",
-            "following",
-        ]
-
-
-# class LoginSerializer(ModelSerializer):
-#     username = serializers.CharField()
-#     email = serializers.CharField()
-
-
-# class RegisterSerializer(ModelSerializer):
-#     serializer_class = RegisterSerializer
-#     Token.objects.create()
-
-#     def create_user(self, validated_data):
-#         User = get_user_model().objects.create_user(
-#             username=validated_data["username"],
-#             email=validated_data["email"],
-#             password=validated_data["password"],
-#         )
-#         return User
+        fields = ['username', 'password']
